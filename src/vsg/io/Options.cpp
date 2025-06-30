@@ -49,6 +49,7 @@ Options::Options(const Options& options, const CopyOp& copyop) :
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
     formatCoordinateConventions(options.formatCoordinateConventions),
+    formatOriginConventions(options.formatOriginConventions),
     shaderSets(options.shaderSets),
     inheritedState(options.inheritedState),
     instrumentation(options.instrumentation),
@@ -80,6 +81,7 @@ int Options::compare(const Object& rhs_object) const
     if ((result = compare_value(mapRGBtoRGBAHint, rhs.mapRGBtoRGBAHint))) return result;
     if ((result = compare_value(sceneCoordinateConvention, rhs.sceneCoordinateConvention))) return result;
     if ((result = compare_value(formatCoordinateConventions, rhs.formatCoordinateConventions))) return result;
+    if ((result = compare_value(formatOriginConventions, rhs.formatOriginConventions))) return result;
     return compare_value(shaderSets, rhs.shaderSets);
 }
 
@@ -175,6 +177,14 @@ bool Options::readOptions(CommandLine& arguments)
 
     if (arguments.read("--file-cache", fileCache)) optionsRead = true;
     if (arguments.read("--extension-hint", extensionHint)) optionsRead = true;
+
+    vsg::Path path;
+    std::string origin;
+    while(arguments.read("--format-origin", path, origin))
+    {
+        if (origin=="TOP_LEFT") formatOriginConventions[path] = TOP_LEFT;
+        else if (origin=="BOTTOM_LEFT") formatOriginConventions[path] = BOTTOM_LEFT;
+    }
 
     return optionsRead;
 }

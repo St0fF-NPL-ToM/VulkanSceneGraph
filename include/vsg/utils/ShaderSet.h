@@ -47,6 +47,7 @@ namespace vsg
         uint32_t descriptorCount = 0;
         VkShaderStageFlags stageFlags = 0;
         CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE;
+        std::string associatedAttributeName;
         ref_ptr<Data> data;
 
         int compare(const DescriptorBinding& rhs) const;
@@ -139,7 +140,7 @@ namespace vsg
         void addAttributeBinding(const std::string& name, const std::string& define, uint32_t location, VkFormat format, ref_ptr<Data> data, CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE);
 
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
-        void addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE);
+        void addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE, const std::string& assocaitedAttributeName = {});
 
         [[deprecated("use addDescriptorBinding(..)")]] void addUniformBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
 

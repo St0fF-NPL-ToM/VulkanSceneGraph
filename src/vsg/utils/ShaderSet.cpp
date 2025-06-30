@@ -63,6 +63,7 @@ int DescriptorBinding::compare(const DescriptorBinding& rhs) const
     if ((result = compare_value(descriptorType, rhs.descriptorType))) return result;
     if ((result = compare_value(descriptorCount, rhs.descriptorCount))) return result;
     if ((result = compare_value(stageFlags, rhs.stageFlags))) return result;
+    if ((result = compare_value(associatedAttributeName, rhs.associatedAttributeName))) return result;
     return compare_pointer(data, rhs.data);
 }
 
@@ -180,9 +181,9 @@ void ShaderSet::addAttributeBinding(const std::string& name, const std::string& 
     attributeBindings.push_back(AttributeBinding{name, define, location, format, coordinateSpace, data});
 }
 
-void ShaderSet::addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace)
+void ShaderSet::addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace, const std::string& assocaitedAttributeName)
 {
-    descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, coordinateSpace, data});
+    descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, coordinateSpace, assocaitedAttributeName, data});
 }
 
 void ShaderSet::addPushConstantRange(const std::string& name, const std::string& define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
@@ -337,6 +338,7 @@ void ShaderSet::read(Input& input)
         input.read("descriptorCount", binding.descriptorCount);
         input.readValue<uint32_t>("stageFlags", binding.stageFlags);
         if (input.version_greater_equal(1, 1, 10)) input.readValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
+        if (input.version_greater_equal(1, 1, 11)) input.read("associatedAttributeName", binding.associatedAttributeName);
         input.readObject("data", binding.data);
     }
 
@@ -417,6 +419,7 @@ void ShaderSet::write(Output& output) const
         output.write("descriptorCount", binding.descriptorCount);
         output.writeValue<uint32_t>("stageFlags", binding.stageFlags);
         if (output.version_greater_equal(1, 1, 10)) output.writeValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
+        if (output.version_greater_equal(1, 1, 11)) output.write("associatedAttributeName", binding.associatedAttributeName);
         output.writeObject("data", binding.data);
     }
 

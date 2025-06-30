@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Inherit.h>
+#include <vsg/core/Data.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/maths/transform.h>
@@ -79,8 +80,11 @@ namespace vsg
         /// Coordinate convention to use for scene graph
         CoordinateConvention sceneCoordinateConvention = CoordinateConvention::Z_UP;
 
-        /// Coordinate convention to assume for specified lower case file formats extensions
+        /// Vertex Coordinate convention to assume for specified lower case file formats extensions
         std::map<Path, CoordinateConvention> formatCoordinateConventions;
+
+        /// Image Origin convention to assume for specified lower case file formats extensions
+        std::map<Path, Origin> formatOriginConventions;
 
         /// User defined ShaderSet map, loaders should check the available ShaderSet using the name of the type of ShaderSet.
         /// Standard names are :
