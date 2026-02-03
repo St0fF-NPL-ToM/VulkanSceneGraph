@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/threading/DeleteQueue.h>
 #include <vsg/ui/FrameStamp.h>
 
@@ -47,7 +48,7 @@ void DeleteQueue::wait_then_clear()
     std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
 
     {
-        std::chrono::duration waitDuration = std::chrono::milliseconds(100);
+        std::chrono::duration waitDuration = std::chrono::milliseconds(16);
         std::unique_lock lock(_mutex);
 
         uint64_t previous_frameCount = frameCount.load();
@@ -66,6 +67,13 @@ void DeleteQueue::wait_then_clear()
     }
 
     size_t numObjectsToDelete = objectsToDelete.size();
+
+    info("DeleteQueue::wait_then_clear() ", frameCount.load(), ", numObjectsToDelete = ", numObjectsToDelete);
+
+    for(auto& objectToDelete : objectsToDelete)
+    {
+        info("    { ", objectToDelete.frameCount, ", ", objectToDelete.object, "}");
+    }
 
     objectsToDelete.clear();
 
@@ -86,12 +94,12 @@ void DeleteQueue::clear()
     // use a swap of the container to keep the time the mutex is acquired as short as possible
     {
         std::scoped_lock lock(_mutex);
-        objectsToDelete.swap(objectsToDelete);
+        objectsToDelete.swap(_objectsToDelete);
     }
 
     size_t numObjectsToDelete = objectsToDelete.size();
 
-    //vsg::info("DeleteQueue::clear(), releasing ", nodesToRelease.size());
+    vsg::info("DeleteQueue::clear(), releasing ", objectsToDelete.size());
     objectsToDelete.clear();
 
     if (numObjectsToDelete > 0)
