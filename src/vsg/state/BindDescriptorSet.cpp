@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/state/BindDescriptorSet.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -112,6 +113,22 @@ void BindDescriptorSets::compile(Context& context)
 
 void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
+    info("BindDescriptorSets::record() frameStamp = ", commandBuffer.frameStamp, ", ", commandBuffer.frameStamp->frameCount);
+
+    for(auto& ds : descriptorSets)
+    {
+        for(auto& descriptor : ds->descriptors)
+        {
+            if (auto di = vsg::cast<DescriptorImage>(descriptor))
+            {
+                for(auto imageInfo : di->imageInfoList)
+                {
+                    imageInfo->imageView->frameStamp = commandBuffer.frameStamp;
+                }
+            }
+        }
+    }
+
     //info("BindDescriptorSets::record() ", dynamicOffsets.size(), ", ", dynamicOffsets.data());
     auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet,
@@ -208,8 +225,32 @@ void BindDescriptorSet::compile(Context& context)
 
 void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
 {
-    //info("BindDescriptorSet::record() ", dynamicOffsets.size(), ", ", dynamicOffsets.data());
     auto& vkd = _vulkanData[commandBuffer.deviceID];
+    info("BindDescriptorSet::record() frameStamp = ", commandBuffer.frameStamp, ", ", commandBuffer.frameStamp->frameCount, " vkDescriptorSet = ", vkd._vkDescriptorSet);
+
+    for(auto& descriptor : descriptorSet->descriptors)
+    {
+        if (auto di = vsg::cast<DescriptorImage>(descriptor))
+        {
+            for(auto imageInfo : di->imageInfoList)
+            {
+                if (imageInfo->imageView)
+                {
+                    imageInfo->imageView->frameStamp = commandBuffer.frameStamp;
+                    vsg::info("    ", imageInfo->imageView ,", imageView->vk = ", imageInfo->imageView->vk(commandBuffer.deviceID));
+                    if (imageInfo->imageView->image)
+                    {
+                        vsg::info("        ", imageInfo->imageView->image, ", image->vk = ", imageInfo->imageView->image->vk(commandBuffer.deviceID));
+                        imageInfo->imageView->image->frameStamp = commandBuffer.frameStamp;
+                    }
+
+
+                }
+
+            }
+        }
+    }
+
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet,
                             1, &(vkd._vkDescriptorSet),
                             static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());

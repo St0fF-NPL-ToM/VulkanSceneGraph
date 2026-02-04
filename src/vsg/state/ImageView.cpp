@@ -37,6 +37,8 @@ void ImageView::VulkanData::release()
 {
     if (imageView)
     {
+        vsg::info("ImageView::VulkanData::release() imageView = ", imageView);
+
         vkDestroyImageView(*device, imageView, device->getAllocationCallbacks());
         imageView = VK_NULL_HANDLE;
         device = {};
@@ -46,6 +48,7 @@ void ImageView::VulkanData::release()
 ImageView::ImageView(ref_ptr<Image> in_image) :
     image(in_image)
 {
+    info("ImageView::ImageView(", in_image, ") ", this);
     if (image)
     {
         if (image->data && image->data->properties.imageViewType >= 0)
@@ -70,6 +73,7 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
 ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
     image(in_image)
 {
+    info("ImageView::ImageView(", in_image,", ", aspectFlags, ") ", this);
     if (image)
     {
         if (image->data && image->data->properties.imageViewType >= 0)
@@ -93,7 +97,12 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
 
 ImageView::~ImageView()
 {
-    for (auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData)
+    {
+        if (frameStamp) info("ImageView::~ImageView() ", this, ", frameStamp = ", frameStamp, ", frameCount = ", frameStamp->frameCount, ", vd.imageView = ", vd.imageView);
+        else info("ImageView::~ImageView() ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView);
+        vd.release();
+    }
 }
 
 int ImageView::compare(const Object& rhs_object) const
@@ -137,6 +146,9 @@ void ImageView::compile(Device* device)
     {
         throw Exception{"Error: Failed to create VkImageView.", result};
     }
+
+    vsg::info("ImageView::compile() ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView);
+
 }
 
 void ImageView::compile(Context& context)
@@ -166,6 +178,8 @@ void ImageView::compile(Context& context)
     {
         throw Exception{"Error: Failed to create VkImageView.", result};
     }
+
+    vsg::info("ImageView::compile(Context&) ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView);
 }
 
 ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> image, VkImageAspectFlags aspectFlags)

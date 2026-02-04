@@ -36,8 +36,9 @@ namespace vsg
         using ObjectsToDelete = std::list<ObjectToDelete>;
 
         std::atomic_uint64_t frameCount = 0;
+        uint64_t retainForFrameCount = 3;
         //uint64_t retainForFrameCount = 3;
-        uint64_t retainForFrameCount = 4;
+        //uint64_t retainForFrameCount = 4;
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }

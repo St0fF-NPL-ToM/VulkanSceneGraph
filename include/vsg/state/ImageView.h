@@ -34,6 +34,7 @@ namespace vsg
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
         VkImageSubresourceRange subresourceRange;
+        vsg::ref_ptr<FrameStamp> frameStamp;
 
         /// Vulkan VkImageView handle
         VkImageView vk(uint32_t deviceID) const { return _vulkanData[deviceID].imageView; }

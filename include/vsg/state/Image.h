@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/DeviceMemory.h>
 #include <vsg/vk/vk_buffer.h>
+#include <vsg/ui/FrameStamp.h>
 
 namespace vsg
 {
@@ -47,6 +48,7 @@ namespace vsg
         VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         std::vector<uint32_t> queueFamilyIndices;
         VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        vsg::ref_ptr<FrameStamp> frameStamp;
 
         int compare(const Object& rhs_object) const override;
 

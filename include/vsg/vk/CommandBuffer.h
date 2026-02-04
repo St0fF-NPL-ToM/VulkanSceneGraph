@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/vk/CommandPool.h>
+#include <vsg/ui/FrameStamp.h>
 
 namespace vsg
 {
@@ -43,6 +44,7 @@ namespace vsg
         State* state = nullptr;
         const InstanceNode* instanceNode = nullptr;
         ref_ptr<GPUStatsCollection> gpuStats;
+        vsg::ref_ptr<FrameStamp> frameStamp;
 
         VkCommandBufferLevel level() const { return _level; }
 

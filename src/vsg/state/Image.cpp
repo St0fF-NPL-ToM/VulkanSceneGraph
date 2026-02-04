@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/compare.h>
 #include <vsg/state/Image.h>
 #include <vsg/vk/Context.h>
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -35,6 +36,7 @@ void Image::VulkanData::release()
 Image::Image(ref_ptr<Data> in_data) :
     data(in_data)
 {
+    info("Image::Image() ", this, ", ", in_data);
     if (data)
     {
         auto properties = data->properties;
@@ -101,7 +103,12 @@ Image::Image(VkImage image, Device* device)
 
 Image::~Image()
 {
-    for (auto& vd : _vulkanData) vd.release();
+    for (auto& vd : _vulkanData)
+    {
+        if (frameStamp) info("Image::~Image() ", this, ", frameStamp = ", frameStamp, ", frameCount = ", frameStamp->frameCount, ", vd.image= ", vd.image);
+        else info("Image::~Image() ", this, ", frameStamp = ", frameStamp, ", vd.image = ", vd.image);
+        vd.release();
+    }
 }
 
 int Image::compare(const Object& rhs_object) const
@@ -208,6 +215,8 @@ VkResult Image::compile(Device* device)
     {
         throw Exception{"Error: Failed to create VkImage.", result};
     }
+
+    vsg::info("Image::compile() ", this, ", frameStamp = ", frameStamp, ", vd.image = ", vd.image);
 
     return result;
 }

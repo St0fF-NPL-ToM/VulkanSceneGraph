@@ -126,6 +126,8 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     beginInfo.pInheritanceInfo = nullptr;
 
+    commandBuffer->frameStamp = vsg::clone(frameStamp);
+
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     {
