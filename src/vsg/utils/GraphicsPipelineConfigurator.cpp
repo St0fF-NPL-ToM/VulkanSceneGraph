@@ -681,10 +681,14 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                             {
                                 for (auto& image_info : descriptor_image->imageInfoList)
                                 {
+#if 0
                                     if (image_info->imageView && image_info->imageView->image)
                                     {
                                         sharedObjects->share(image_info->imageView->image);
                                     }
+#else
+                                        sharedObjects->share(image_info);
+#endif
                                 }
                             }
                             sharedObjects->share(descriptor);
