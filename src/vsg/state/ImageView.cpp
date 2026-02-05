@@ -147,7 +147,14 @@ void ImageView::compile(Device* device)
         throw Exception{"Error: Failed to create VkImageView.", result};
     }
 
-    vsg::info("ImageView::compile() ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView);
+    if (image)
+    {
+        vsg::info("ImageView::compile() ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView, ", image->vk(", device->deviceID, ") = ", image->vk(device->deviceID),")");
+    }
+    else
+    {
+        vsg::info("ImageView::compile() ", this, ", frameStamp = ", frameStamp, ", vd.imageView = ", vd.imageView);
+    }
 
 }
 

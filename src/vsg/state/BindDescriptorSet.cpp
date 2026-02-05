@@ -228,6 +228,8 @@ void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
     auto& vkd = _vulkanData[commandBuffer.deviceID];
     info("BindDescriptorSet::record() frameStamp = ", commandBuffer.frameStamp, ", ", commandBuffer.frameStamp->frameCount, " vkDescriptorSet = ", vkd._vkDescriptorSet);
 
+    auto frameCount = commandBuffer.frameStamp->frameCount;
+
     for(auto& descriptor : descriptorSet->descriptors)
     {
         if (auto di = vsg::cast<DescriptorImage>(descriptor))
@@ -237,11 +239,14 @@ void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
                 if (imageInfo->imageView)
                 {
                     imageInfo->imageView->frameStamp = commandBuffer.frameStamp;
-                    vsg::info("    ", imageInfo->imageView ,", imageView->vk = ", imageInfo->imageView->vk(commandBuffer.deviceID));
                     if (imageInfo->imageView->image)
                     {
-                        vsg::info("        ", imageInfo->imageView->image, ", image->vk = ", imageInfo->imageView->image->vk(commandBuffer.deviceID));
+                        vsg::info("    frameCount = ", frameCount, ", ", imageInfo->imageView ,", imageView->vk = ", imageInfo->imageView->vk(commandBuffer.deviceID), " , ", imageInfo->imageView->image, ", image->vk = ", imageInfo->imageView->image->vk(commandBuffer.deviceID));
                         imageInfo->imageView->image->frameStamp = commandBuffer.frameStamp;
+                    }
+                    else
+                    {
+                        vsg::info("    frameCount = ", frameCount, ", ", imageInfo->imageView ,", imageView->vk = ", imageInfo->imageView->vk(commandBuffer.deviceID));
                     }
 
 
