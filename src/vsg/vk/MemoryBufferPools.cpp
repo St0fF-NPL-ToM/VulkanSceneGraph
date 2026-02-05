@@ -292,6 +292,8 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
         {
             if (imageInfo->imageView->image->compile(*this) == VK_SUCCESS && imageInfo->imageView->image->getDeviceMemory(deviceID) != 0)
             {
+                imageInfo->imageView->compile(device.get());
+
                 //info("    ALLOCATED imageInfo = ", imageInfo, ", imageView = ", imageInfo->imageView, " ----- size = ", computeSize(*imageInfo), " device memory = ", imageInfo->imageView->image->getDeviceMemory(deviceID), " offset = ", imageInfo->imageView->image->getMemoryOffset(deviceID));
             }
             else
