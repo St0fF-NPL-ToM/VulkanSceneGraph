@@ -106,7 +106,7 @@ void BufferInfo::copyDataToBuffer()
 
 void BufferInfo::copyDataToBuffer(uint32_t deviceID)
 {
-    if (!buffer) return;
+    if (!buffer || !data) return;
 
     DeviceMemory* dm = buffer->getDeviceMemory(deviceID);
     if (dm)
@@ -115,6 +115,12 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
         {
             if (auto transferTask = dm->getDevice()->transferTask.ref_ptr())
             {
+                // if data->dirty() hasn't been called since the last copy, assume it should have been done in call dirty on the data to ensure TransferTask copies the data.
+                if (!data->differentModifiedCount(copiedModifiedCounts[deviceID]))
+                {
+                    data->dirty();
+                }
+
                 transferTask->assign(BufferInfoList{ref_ptr<BufferInfo>(this)});
             }
             else
@@ -179,8 +185,6 @@ ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* d
 //
 bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
-    debug("vsg::createBufferAndTransferData(.., )");
-
     if (bufferInfoList.empty()) return false;
 
     Device* device = context.device;
@@ -191,6 +195,9 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
     else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
         alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+
+    debug("vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode) usage = ", usage, ", alignment = ", alignment);
 
     //transferTask = nullptr;
 
@@ -370,6 +377,8 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
         alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
     else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
         alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+    debug("vsg::createHostVisibleBuffer(Device* device, const DataList& dataList, VkBufferUsageFlags usage, VkSharingMode sharingMode) usage = ", usage, ", alignment = ", alignment);
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
