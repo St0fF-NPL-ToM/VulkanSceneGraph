@@ -278,10 +278,14 @@ set(LIBRARIES PUBLIC
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})
-    list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+    if ( WIN32 )
+        list(INSERT LIBRARIES 0 PRIVATE Vulkan::glslang Vulkan::shaderc_combined Vulkan::SPIRV-Tools)
+    else()
+        list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+    endif()
 endif()
 
-if (VSG_SUPPORTS_ShaderOptimizer)
+if (VSG_SUPPORTS_ShaderOptimizer AND NOT WIN32)
     list(INSERT LIBRARIES 0 PRIVATE SPIRV-Tools-opt)
 endif()
 

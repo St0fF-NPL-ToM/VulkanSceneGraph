@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10..3.24)
 
 project(vsg
     VERSION 1.1.16
@@ -44,11 +44,19 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)
 
-    find_package(glslang CONFIG QUIET)
-
-    if (glslang_FOUND)
-        set(FIND_DEPENDENCY_glslang "find_package(glslang CONFIG REQUIRED)")
+    if ( WIN32 ) # multiple find_package calls of the same package are ok, they simply add components.
+        find_package(Vulkan REQUIRED COMPONENTS glslang shaderc_combined SPIRV-Tools)
+        if ( TARGET Vulkan::glslang )
+            set(glslang_FOUND on)
+            set(FIND_DEPENDENCY_glslang "find_package(Vulkan REQUIRED COMPONENTS glslang shaderc_combined SPIRV-Tools)")
+        endif()
     else()
+        find_package(glslang CONFIG QUIET)
+        if (glslang_FOUND)
+            set(FIND_DEPENDENCY_glslang "find_package(glslang CONFIG REQUIRED)")
+        endif()
+    endif()
+    if (NOT glslang_FOUND)
         message(WARNING "glslang not found. ShaderCompile support disabled.")
         set(VSG_SUPPORTS_ShaderCompiler 0)
         set(FIND_DEPENDENCY_glslang "")
@@ -59,7 +67,7 @@ endif()
 
 if (VSG_SUPPORTS_ShaderCompiler)
     option(VSG_SUPPORTS_ShaderOptimizer "Optional shader optimizer support" ON)
-    if (VSG_SUPPORTS_ShaderOptimizer)
+    if (VSG_SUPPORTS_ShaderOptimizer AND NOT WIN32)
         find_package(SPIRV-Tools-opt CONFIG)
         if (NOT SPIRV-Tools-opt_FOUND)
             set(VSG_SUPPORTS_ShaderOptimizer OFF)
