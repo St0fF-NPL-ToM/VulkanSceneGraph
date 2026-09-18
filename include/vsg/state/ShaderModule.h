@@ -46,7 +46,7 @@ namespace vsg
             SPIRV_1_5 = (1 << 16) | (5 << 8)
         };
 
-        uint32_t vulkanVersion = VK_API_VERSION_1_0;
+        uint32_t vulkanVersion = VK_API_VERSION_1_3;
         int clientInputVersion = 100;
         Language language = GLSL;
         int defaultVersion = 450;

@@ -86,3 +86,4 @@ src/vsg/CHANGES.md
 src/vsg/vsgTargets.cmake
 *.txt.user
 *.txt.user.*
+/CMakeSettings.json
