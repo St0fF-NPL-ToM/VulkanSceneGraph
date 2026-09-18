@@ -123,19 +123,15 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
 }
 
 Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
-    apiVersion(vulkanApiVersion)
-{
-    // application info
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "VulkanSceneGraph application";
-    appInfo.pEngineName = "VulkanSceneGraph";
-    appInfo.engineVersion = VK_MAKE_VERSION(VSG_VERSION_MAJOR, VSG_VERSION_MINOR, VSG_VERSION_PATCH);
-    appInfo.apiVersion = vulkanApiVersion;
+    Instance(instanceExtensions, layers, VkApplicationInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO, nullptr, "VulkanSceneGraph application", VK_MAKE_VERSION(0, 1, 0), "VulkanSceneGraph", VK_MAKE_VERSION(VSG_VERSION_MAJOR, VSG_VERSION_MINOR, VSG_VERSION_PATCH), vulkanApiVersion}, allocator) {}
 
+/// open up a chance for userspace to declare VkApplicationInfo
+Instance::Instance(Names instanceExtensions, Names layers, VkApplicationInfo appData, AllocationCallbacks* allocator) :
+    apiVersion(appData.apiVersion)
+{
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
+    createInfo.pApplicationInfo = &appData;
 
     createInfo.flags = 0;
 
@@ -197,7 +193,13 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     }
     else
     {
-        throw Exception{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
+        std::ostringstream str;
+        str << "Error: vsg::Instance::create(...) failed to create VkInstance: " << result;
+        
+        if ( result == VK_ERROR_INCOMPATIBLE_DRIVER )
+            str << "\n\t(minimum required Vulkan version not available)";
+
+        throw Exception{ str.str(), result};
     }
 
     _extensions = InstanceExtensions::create(this);
